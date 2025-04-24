@@ -1,120 +1,173 @@
-// fn main() {
-//     let operation = |a: i32, b: i32| {
-//         a * b
-//     };
-
-//     println!("Result: {}", operation(10, 5));
-// }
-
-// fn track_changes() {
-//     let mut tracker = 0;
-//     let mut update = || {
-//         tracker += 1;
-//         println!("Current Value of Tracker: {}", tracker)
-//     };
-
-//     update();
-//     update();
-// }
+// use std::thread;
+// use std::time::Duration;
 
 // fn main() {
-//     track_changes();
-// }
-
-
-
-
-// fn process_vector<F>(vec: Vec<i32>, f: F) -> Vec<i32>
-// where
-//     F: Fn(i32) -> i32,
-// {
-//     vec.into_iter().map(f).collect()
-// }
-
-// fn process_vector<F>(vec: Vec<i32>, f: F) -> Vec<i32>
-// where
-//     F: Fn(i32) -> i32,
-// {
-//     let mut result = Vec::new();
-//     for x in vec {
-//         result.push(f(x)); // Apply the closure
+//     println!("Main thread starting");
+    
+//     // TODO: Create a vector to store thread handles
+//     let mut handles = vec![];
+    
+//     // TODO: Spawn 3 threads
+//     for i in 1..=3 {
+//         // TODO: Spawn a thread and store its handle
+//         let handle = thread::spawn(move || {
+//             // Simulate some work
+//             println!("Thread {} starting", i);
+//             thread::sleep(Duration::from_millis(500));
+//             println!("Thread {} finished", i);
+//         });
+        
+//         // TODO: Store the handle
+//         handles.push(handle);
 //     }
-//     result
+    
+//     // TODO: Wait for all threads to complete
+//     for handle in handles{
+//         handle.join().unwrap();
+//     }
+    
+    
+//     println!("All threads completed.");
 // }
+
+
+
+
+
+// use std::sync::{Arc, Mutex};
+// use std::thread;
 
 // fn main() {
-//     let numbers = vec![1, 2, 3];
-
-//     let doubled = process_vector(numbers.clone(), |x| {
-//         // Implement: multiply each number by 2
-//         x * 2
-//     });
-
-//     let replaced = process_vector(numbers, |x| {
-//         // Implement: if number > 2, replace with 0, else keep number
-//         if x > 2{
-//             x * 0       
-//         }
-//         else{
-//             x
-//         }
-//     });
-
-//     println!("Doubled: {:?}", doubled);
-//     println!("Replaced: {:?}", replaced);
+//     // TODO: Create a shared counter using Arc and Mutex
+//     let counter = Arc::new(Mutex::new(0));
+    
+//     // TODO: Create a vector to store thread handles
+//     let mut handles = vec![];
+    
+//     // TODO: Spawn 5 threads
+//     for i in 1..=5 {
+//         // TODO: Clone the Arc for the thread
+        
+        
+//         // TODO: Spawn a thread that increments the counter 10 times
+//         let handle = thread::spawn(move || {
+//             // TODO: Increment counter 10 times
+            
+            
+//         });
+        
+//         handles.push(handle);
+//     }
+    
+//     // TODO: Wait for all threads to complete
+//     for handle in handles{
+//         handle.join().unwrap();
+//     }
+    
+//     // TODO: Print the final value of the counter
+    
 // }
 
-use std::{thread, time::Duration};
 
-struct ComputeCache<T>
-where
-    T: Fn() -> String,
-{
-    // Add fields here
-    computation: T,
-    result: Option<String>,
+
+
+// General Process For Assignment #3 Upper Medium
+// 1) Multiple Threads Managment
+// 2) Tasks send through channel
+// 3) Each threads spins in infinite loop
+//    and awaits for instructions.
+// 4) 
+
+
+use std::sync::{mpsc, Arc, Mutex};
+use std::thread;
+
+// Message to be sent to the workers
+enum Message {
+    NewJob(Job),
+    Terminate,
 }
 
-impl<T> ComputeCache<T>
-where
-    T: Fn() -> String,
-{
-    fn new(computation: T) -> Self {
-        // Your implementation here
-        ComputeCache{
-            computation,
-            result: None,
-        }
-    }
+// Job type is a boxed closure that can be sent across threads
+type Job = Box<dyn FnOnce() + Send + 'static>;
 
-    fn get_result(&mut self) -> String {
-        // Your implementation here
-        match &self.result{
-            Some(value) => {
-                value.clone()
-            }
-            None => {
-                thread::sleep(Duration::from_secs(2));
-                let value = (self.computation)();
-                self.result = Some(value.clone());
-                value
-            }
-        }
+// ThreadPool struct
+struct ThreadPool {
+    workers: Vec<Worker>,
+    sender: mpsc::Sender<Message>,
+}
+
+impl ThreadPool {
+    // Create a new ThreadPool with the specified size
+    fn new(size: usize) -> ThreadPool {
+        assert!(size > 0);
+        
+        // TODO: Create a channel for sending jobs
+        
+        
+        // TODO: Create and store workers
+        
+        
+        // TODO: Return the ThreadPool
+        
+    }
+    
+    // Execute a job in the thread pool
+    fn execute<F>(&self, f: F)
+    where
+        F: FnOnce() + Send + 'static,
+    {
+        // TODO: Create a job from the closure and send it to a worker
+        
+    }
+}
+
+// Clean up resources when ThreadPool is dropped
+impl Drop for ThreadPool {
+    fn drop(&mut self) {
+        // TODO: Send terminate message to all workers
+        
+        
+        // TODO: Wait for all workers to finish
+        
+    }
+}
+
+// Worker struct represents a thread that can process jobs
+struct Worker {
+    id: usize,
+    thread: Option<thread::JoinHandle<()>>,
+}
+
+impl Worker {
+    // Create a new worker with the specified ID
+    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Message>>>) -> Worker {
+        // TODO: Create a thread that loops and receives jobs from the channel
+        
+        
+        // TODO: Return the Worker
         
     }
 }
 
 fn main() {
-    let mut cache = ComputeCache::new(|| {
-        println!("Computing (this will take 2 seconds)...");
-        thread::sleep(Duration::from_secs(2));
-        "Hello, world!".to_string()
-    });
-
-    println!("First call:");
-    println!("Result: {}", cache.get_result());
+    // Create a new thread pool with 4 workers
+    let pool = ThreadPool::new(4);
     
-    println!("\nSecond call:");
-    println!("Result (cached): {}", cache.get_result());
+    // Submit 10 tasks to the pool
+    for i in 1..=10 {
+        pool.execute(move || {
+            println!("Processing task {}", i);
+            thread::sleep(std::time::Duration::from_millis(500));
+            println!("Completed task {}", i);
+        });
+    }
+    
+    println!("Main thread waiting for tasks to complete...");
+    // ThreadPool will be dropped when it goes out of scope, triggering the cleanup
 }
+
+
+
+
 
